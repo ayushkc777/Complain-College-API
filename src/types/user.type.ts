@@ -6,6 +6,9 @@ export const UserSchema = z.object({
     password: z.string().min(6),
     firstName: z.string().optional(),
     lastName: z.string().optional(),
+    image: z.string().optional(),
+    resetPasswordToken: z.string().optional(),
+    resetPasswordExpires: z.date().optional(),
     role: z.enum(["user", "admin"]).default("user"),
 });
 

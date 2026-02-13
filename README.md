@@ -131,6 +131,12 @@ tsconfig.json
 JWT_SECRET='mero_sercret'
 MONGODB_URI='mongodb://127.0.0.1:27017/my_db'
 PORT=5050
+FRONTEND_URL='http://localhost:3000'
+SMTP_HOST='smtp.gmail.com'
+SMTP_PORT=587
+SMTP_USER='your_email@example.com'
+SMTP_PASS='your_app_password'
+SMTP_FROM='Complain College <no-reply@example.com>'
 ```
 
 ---
@@ -162,6 +168,24 @@ Request - /api/auth/login
 {
   "email": "test@test.com",
   "password": "passpass"
+}
+```
+
+### Forgot Password
+Request - /api/auth/forgot-password
+```json
+{
+  "email": "test@test.com"
+}
+```
+
+### Reset Password
+Request - /api/auth/reset-password
+```json
+{
+  "token": "reset-token",
+  "password": "newpass123",
+  "confirmPassword": "newpass123"
 }
 ```
 

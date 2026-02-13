@@ -6,7 +6,9 @@ export interface IUserRepository {
     // 5 common database queries for entity
     createUser(userData: Partial<IUser>): Promise<IUser>;
     getUserById(id: string): Promise<IUser | null>;
-    getAllUsers(): Promise<IUser[]>;
+    getAllUsers(page: number, limit: number): Promise<IUser[]>;
+    countUsers(): Promise<number>;
+    getUserByResetToken(token: string): Promise<IUser | null>;
     updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null>;
     deleteUser(id: string): Promise<boolean>;
 }
@@ -30,9 +32,19 @@ export class UserRepository implements IUserRepository {
         const user = await UserModel.findById(id);
         return user;
     }
-    async getAllUsers(): Promise<IUser[]> {
-        const users = await UserModel.find();
+    async getAllUsers(page: number, limit: number): Promise<IUser[]> {
+        const skip = (page - 1) * limit;
+        const users = await UserModel.find().skip(skip).limit(limit).sort({ createdAt: -1 });
         return users;
+    }
+    async countUsers(): Promise<number> {
+        return UserModel.countDocuments();
+    }
+    async getUserByResetToken(token: string): Promise<IUser | null> {
+        return UserModel.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: new Date() },
+        });
     }
     async updateUser(id: string, updateData: Partial<IUser>): Promise<IUser | null> {
         // UserModel.updateOne({ _id: id }, { $set: updateData });
