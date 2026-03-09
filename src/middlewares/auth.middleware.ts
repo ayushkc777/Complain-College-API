@@ -4,9 +4,11 @@ import { JWT_SECRET } from "../config";
 
 export const authenticate = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization || "";
-  const token = authHeader.startsWith("Bearer ")
+  const bearerToken = authHeader.startsWith("Bearer ")
     ? authHeader.replace("Bearer ", "")
     : null;
+  const cookieToken = (req as any).cookies?.auth_token as string | undefined;
+  const token = bearerToken || cookieToken;
 
   if (!token) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
