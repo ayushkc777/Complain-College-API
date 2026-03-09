@@ -13,15 +13,21 @@ const MOBILE_BATCHES = [
   { _id: "697c386aefc41580fa63f74f", batchName: "36B", status: "active" },
 ];
 
+const normalizedEmail = (value: unknown): string =>
+  typeof value === "string" ? value.trim().toLowerCase() : "";
+
+const safeString = (value: unknown): string =>
+  typeof value === "string" ? value : "";
+
 router.get("/batches", (_req: Request, res: Response) => {
   return res.status(200).json({ success: true, data: MOBILE_BATCHES });
 });
 
 router.post("/students", async (req: Request, res: Response) => {
   try {
-    const name = typeof req.body?.name === "string" ? req.body.name.trim() : "";
-    const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
-    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    const name = safeString(req.body?.name).trim();
+    const email = normalizedEmail(req.body?.email);
+    const password = safeString(req.body?.password);
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: "Please provide an email and password" });
@@ -57,8 +63,8 @@ router.post("/students", async (req: Request, res: Response) => {
 
 router.post("/students/login", async (req: Request, res: Response) => {
   try {
-    const email = typeof req.body?.email === "string" ? req.body.email.trim().toLowerCase() : "";
-    const password = typeof req.body?.password === "string" ? req.body.password : "";
+    const email = normalizedEmail(req.body?.email);
+    const password = safeString(req.body?.password);
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: "Please provide an email and password" });
