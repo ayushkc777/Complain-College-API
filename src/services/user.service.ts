@@ -93,10 +93,32 @@ export class UserService {
         return user;
     }
 
-    async updateUser(id: string, data: UpdateUserDTO) {
+    async updateUser(
+        id: string,
+        data: UpdateUserDTO,
+        options?: { isAdmin?: boolean; currentPassword?: string }
+    ) {
+        const existingUser = await userRepository.getUserById(id);
+        if (!existingUser) {
+            throw new HttpError(404, "User not found");
+        }
+
         if (data.password) {
+            if (!options?.isAdmin) {
+                if (!options?.currentPassword) {
+                    throw new HttpError(400, "Current password is required");
+                }
+                const isValidCurrentPassword = await bcryptjs.compare(
+                    options.currentPassword,
+                    existingUser.password
+                );
+                if (!isValidCurrentPassword) {
+                    throw new HttpError(401, "Current password is incorrect");
+                }
+            }
             data.password = await bcryptjs.hash(data.password, 10);
         }
+
         const updated = await userRepository.updateUser(id, data);
         if(!updated){
             throw new HttpError(404, "User not found");
