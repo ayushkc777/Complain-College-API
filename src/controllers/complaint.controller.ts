@@ -28,9 +28,10 @@ export class ComplaintController {
     }
   }
 
-  async list(_req: Request, res: Response) {
+  async list(req: Request, res: Response) {
     try {
-      const complaints = await service.list();
+      const actor = (req as any).user;
+      const complaints = await service.list({ id: actor.id, role: actor.role });
       return res.status(200).json({ success: true, data: complaints });
     } catch (error: Error | any) {
       return res.status(error.statusCode ?? 500).json({
@@ -42,7 +43,11 @@ export class ComplaintController {
 
   async getById(req: Request, res: Response) {
     try {
-      const complaint = await service.getById(req.params.id);
+      const actor = (req as any).user;
+      const complaint = await service.getById(req.params.id, {
+        id: actor.id,
+        role: actor.role,
+      });
       return res.status(200).json({ success: true, data: complaint });
     } catch (error: Error | any) {
       return res.status(error.statusCode ?? 500).json({
@@ -54,6 +59,7 @@ export class ComplaintController {
 
   async update(req: Request, res: Response) {
     try {
+      const actor = (req as any).user;
       const image = req.file ? `/uploads/${req.file.filename}` : undefined;
       const payload = { ...req.body, image };
       const parsed = UpdateComplaintDTO.safeParse(payload);
@@ -62,7 +68,10 @@ export class ComplaintController {
           .status(400)
           .json({ success: false, message: z.prettifyError(parsed.error) });
       }
-      const updated = await service.update(req.params.id, parsed.data);
+      const updated = await service.update(req.params.id, parsed.data, {
+        id: actor.id,
+        role: actor.role,
+      });
       return res
         .status(200)
         .json({ success: true, message: "Complaint updated", data: updated });
@@ -76,7 +85,8 @@ export class ComplaintController {
 
   async remove(req: Request, res: Response) {
     try {
-      await service.remove(req.params.id);
+      const actor = (req as any).user;
+      await service.remove(req.params.id, { id: actor.id, role: actor.role });
       return res
         .status(200)
         .json({ success: true, message: "Complaint deleted" });
