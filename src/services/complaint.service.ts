@@ -49,8 +49,9 @@ export class ComplaintService {
     return this.withReporter(complaint as any);
   }
 
-  async list(_actor: Actor) {
-    const complaints = await repo.list();
+  async list(actor: Actor) {
+    const complaints =
+      actor.role === "admin" ? await repo.list() : await repo.listByUser(actor.id);
     return Promise.all(complaints.map((item) => this.withReporter(item as any)));
   }
 
