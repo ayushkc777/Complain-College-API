@@ -11,6 +11,7 @@ import { ALLOWED_ORIGINS, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_MS } from "./config"
 
 export function createApp(): Application {
   const app: Application = express();
+  app.disable("x-powered-by");
 
   app.use(
     helmet({
