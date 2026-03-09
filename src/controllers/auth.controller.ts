@@ -1,4 +1,5 @@
 import { UserService } from "../services/user.service";
+import { FRONTEND_URL } from "../config";
 import {
     CreateUserDTO,
     ForgotPasswordDTO,
@@ -57,6 +58,7 @@ export class AuthController {
             if (authUser?.id !== req.params.id && authUser?.role !== "admin") {
                 return res.status(403).json({ success: false, message: "Forbidden" });
             }
+            const currentPassword = req.body?.currentPassword as string | undefined;
             const image = req.file ? `/uploads/${req.file.filename}` : undefined;
             const payload = { ...req.body, image };
             delete (payload as any).role;
@@ -66,7 +68,10 @@ export class AuthController {
                     { success: false, message: z.prettifyError(parsedData.error) }
                 )
             }
-            const updated = await userService.updateUser(req.params.id, parsedData.data);
+            const updated = await userService.updateUser(req.params.id, parsedData.data, {
+                isAdmin: authUser?.role === "admin",
+                currentPassword,
+            });
             return res.status(200).json(
                 { success: true, message: "User Updated", data: updated }
             );
@@ -87,11 +92,16 @@ export class AuthController {
             }
 
             const result = await userService.forgotPassword(parsedData.data.email);
-            return res.status(200).json({
+            const responseBody: Record<string, unknown> = {
                 success: true,
-                message: result.message,
-                data: process.env.NODE_ENV !== "production" ? { token: result.token } : undefined,
-            });
+                message: "Reset request submitted.",
+            };
+
+            if (process.env.NODE_ENV !== "production" && (result as any).token) {
+                responseBody.debugResetUrl = `${FRONTEND_URL}/reset-password?token=${(result as any).token}`;
+            }
+
+            return res.status(200).json(responseBody);
         } catch (error: Error | any) {
             return res.status(error.statusCode ?? 500).json(
                 { success: false, message: error.message || "Internal Server Error" }
