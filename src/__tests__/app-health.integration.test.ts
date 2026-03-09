@@ -18,4 +18,10 @@ describe("App health endpoints integration", () => {
     expect(response.body.status).toBe("ok");
     expect(typeof response.body.timestamp).toBe("string");
   });
+
+  test("GET /health does not expose x-powered-by header", async () => {
+    const response = await request(app).get("/health");
+    expect(response.status).toBe(200);
+    expect(response.headers["x-powered-by"]).toBeUndefined();
+  });
 });
