@@ -74,7 +74,9 @@ export class AdminUserController {
           .status(400)
           .json({ success: false, message: z.prettifyError(parsed.error) });
       }
-      const updated = await userService.updateUser(req.params.id, parsed.data);
+      const updated = await userService.updateUser(req.params.id, parsed.data, {
+        isAdmin: true,
+      });
       return res
         .status(200)
         .json({ success: true, message: "User Updated", data: updated });
