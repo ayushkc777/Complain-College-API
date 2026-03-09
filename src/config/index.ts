@@ -19,10 +19,15 @@ export const ALLOWED_ORIGINS: string[] = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(",").map((item) => item.trim()).filter(Boolean)
     : defaultOrigins;
 
+const toInt = (value: string | undefined, fallback: number): number => {
+    const parsed = value ? Number.parseInt(value, 10) : Number.NaN;
+    return Number.isFinite(parsed) ? parsed : fallback;
+};
+
 export const RATE_LIMIT_WINDOW_MS: number =
-    process.env.RATE_LIMIT_WINDOW_MS ? parseInt(process.env.RATE_LIMIT_WINDOW_MS) : 15 * 60 * 1000;
+    toInt(process.env.RATE_LIMIT_WINDOW_MS, 15 * 60 * 1000);
 export const RATE_LIMIT_MAX: number =
-    process.env.RATE_LIMIT_MAX ? parseInt(process.env.RATE_LIMIT_MAX) : 300;
+    toInt(process.env.RATE_LIMIT_MAX, 300);
 
 export const SMTP_HOST: string | undefined = process.env.SMTP_HOST;
 export const SMTP_PORT: number = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
