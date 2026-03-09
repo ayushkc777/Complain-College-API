@@ -10,6 +10,10 @@ export class ComplaintRepository {
     return ComplaintModel.find().sort({ createdAt: -1 });
   }
 
+  async listByUser(userId: string): Promise<IComplaint[]> {
+    return ComplaintModel.find({ userId }).sort({ createdAt: -1 });
+  }
+
   async getById(id: string): Promise<IComplaint | null> {
     return ComplaintModel.findById(id);
   }
